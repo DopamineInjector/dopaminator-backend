@@ -94,9 +94,8 @@ namespace Dopaminator.Controllers
         [Authorize]
         public IActionResult GetSpin()
         {
-            var userId = User.FindFirst("userId")?.Value;
-            Console.WriteLine(userId);
-            return Ok(new { message = "Dostęp do endpointu spin uzyskany!" });
+            bool isWin = new Random().NextDouble() < 0.33;
+            return Ok(new { isWin });
         }
     }
 
