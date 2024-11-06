@@ -13,6 +13,7 @@ namespace Dopaminator.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+        private readonly string _imagesPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
         private readonly AppDbContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IConfiguration _configuration;
@@ -96,6 +97,27 @@ namespace Dopaminator.Controllers
         {
             bool isWin = new Random().NextDouble() < 0.33;
             return Ok(new { isWin });
+        }
+
+        [HttpGet("main")]
+        public IActionResult GetMainPageImg()
+        {
+            if (!Directory.Exists(_imagesPath))
+            {
+                return NotFound("Image directory not found.");
+            }
+
+            var files = Directory.GetFiles(_imagesPath, "*.jpg");
+            
+            if (files.Length == 0)
+            {
+                return NotFound("No images found.");
+            }
+
+            var randomFile = files[new Random().Next(files.Length)];
+            var fileName = Path.GetFileName(randomFile);
+
+            return PhysicalFile(randomFile, "image/jpeg", fileName);
         }
     }
 
