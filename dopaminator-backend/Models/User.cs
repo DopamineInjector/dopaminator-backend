@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Hosting;
 using System.ComponentModel.DataAnnotations;
 
 namespace Dopaminator.Models
@@ -15,5 +16,9 @@ namespace Dopaminator.Models
 
         [Required]
         public required string Password { get; set; }
+
+        public string JwtToken { get; set; }
+
+        public ICollection<Post> Posts { get; set; }
     }
 }
