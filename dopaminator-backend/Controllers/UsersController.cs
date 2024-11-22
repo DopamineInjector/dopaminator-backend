@@ -7,6 +7,8 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using System.Collections.ObjectModel;
+using dopaminator_backend.Dtos;
 
 namespace Dopaminator.Controllers
 {
@@ -41,7 +43,8 @@ namespace Dopaminator.Controllers
             {
                 Username = request.Username,
                 Email = request.Email,
-                Password = _passwordHasher.HashPassword(null, request.Password)
+                Password = _passwordHasher.HashPassword(null, request.Password),
+                Posts = []
             };
             _context.Users.Add(user);
             _context.SaveChanges();
@@ -82,10 +85,6 @@ namespace Dopaminator.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            user.JwtToken = tokenString;
-            _context.Users.Update(user);
-            _context.SaveChanges();
-
             var response = new LoginResponse
             {
                 Username = user.Username,
@@ -95,26 +94,8 @@ namespace Dopaminator.Controllers
             return Ok(response);
         }
 
-        [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            var userId = User.FindFirst("userId")?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { message = "Invalid user session" });
-
-            var user = _context.Users.FirstOrDefault(u => u.Id == int.Parse(userId));
-            if (user == null)
-                return NotFound(new { message = "User not found" });
-
-            user.JwtToken = "";
-            _context.Users.Update(user);
-            _context.SaveChanges();
-
-            return Ok(new { message = "Logged out successfully" });
-        }
-
         [HttpPost("find")]
-        public IActionResult findUser([FromBody] FindUserRequest request)
+        public IActionResult findUser([FromBody] GetUserRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -123,6 +104,22 @@ namespace Dopaminator.Controllers
             var user = _context.Users.FirstOrDefault(u => u.Username == request.Username);
             bool exists = (user != null);
             return Ok(new { exists });
+        }
+
+        [HttpPost("get")]
+        public IActionResult getUser([FromBody] GetUserRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var user = _context.Users.FirstOrDefault(u => u.Username == request.Username);
+            var response = new GetUserResponse
+            {
+                Username = user.Username,
+                Posts = user.Posts,
+            };
+            return Ok(response);
         }
 
         [HttpGet("spin")]

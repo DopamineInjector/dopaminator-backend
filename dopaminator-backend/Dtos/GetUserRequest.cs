@@ -1,6 +1,6 @@
 ﻿namespace Dopaminator.Dtos
 {
-    public class FindUserRequest
+    public class GetUserRequest
     {
         public required string Username { get; set; }
     }
