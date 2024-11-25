@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Collections.ObjectModel;
-using dopaminator_backend.Dtos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dopaminator.Controllers
 {
@@ -107,17 +107,32 @@ namespace Dopaminator.Controllers
         }
 
         [HttpPost("get")]
+        [Authorize]
         public IActionResult getUser([FromBody] GetUserRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var user = _context.Users.FirstOrDefault(u => u.Username == request.Username);
+
+            var user = _context.Users
+                .Include(u => u.Posts)
+                .FirstOrDefault(u => u.Username == request.Username);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
             var response = new GetUserResponse
             {
                 Username = user.Username,
-                Posts = user.Posts,
+                Posts = user.Posts.Select(p => new PostResponse
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    Content = p.Content
+                }).ToList(),
             };
             return Ok(response);
         }
