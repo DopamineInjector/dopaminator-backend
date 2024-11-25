@@ -65,7 +65,7 @@ namespace Dopaminator.Controllers
 
         // PUT: api/Post/{id}
         [HttpPut("edit/{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Post updatedPost)
+        public async Task<IActionResult> Update(int id, [FromBody] CreatePostRequest updatedPost)
         {
             var userId = GetUserId();
             if (userId == null)
