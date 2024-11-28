@@ -3,12 +3,40 @@
   "WorkspaceRootPath": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|c:\\users\\king5\\desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|solutionrelative:controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|c:\\users\\king5\\desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\controllers\\postscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|solutionrelative:controllers\\postscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|c:\\users\\king5\\desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\dtos\\createpostrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|solutionrelative:dtos\\createpostrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|c:\\users\\king5\\desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|c:\\users\\king5\\desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|solutionrelative:controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|c:\\users\\king5\\desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\dtos\\postresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|solutionrelative:dtos\\postresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|c:\\users\\king5\\desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\models\\post.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|solutionrelative:models\\post.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|c:\\users\\king5\\desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\dtos\\getuserresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|solutionrelative:dtos\\getuserresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|c:\\users\\king5\\desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|solutionrelative:models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|c:\\users\\king5\\desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\dtos\\getuserrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{823AA510-8FEB-4BC8-B6CB-7CA71D312CB7}|dopaminator-backend.csproj|solutionrelative:dtos\\getuserrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -23,25 +51,110 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "UsersController.cs",
-              "DocumentMoniker": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Controllers\\UsersController.cs",
-              "RelativeDocumentMoniker": "Controllers\\UsersController.cs",
-              "ToolTip": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Controllers\\UsersController.cs",
-              "RelativeToolTip": "Controllers\\UsersController.cs",
-              "ViewState": "AQIAAEoAAAAAAAAAAAAwwGAAAAAJAAAA",
+              "Title": "PostsController.cs",
+              "DocumentMoniker": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Controllers\\PostsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\PostsController.cs",
+              "ToolTip": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Controllers\\PostsController.cs",
+              "RelativeToolTip": "Controllers\\PostsController.cs",
+              "ViewState": "AQIAAD8AAAAAAAAAAAAgwFIAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-08T13:57:29.45Z",
+              "WhenOpened": "2024-11-24T13:06:32.458Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "CreatePostRequest.cs",
+              "DocumentMoniker": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Dtos\\CreatePostRequest.cs",
+              "RelativeDocumentMoniker": "Dtos\\CreatePostRequest.cs",
+              "ToolTip": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Dtos\\CreatePostRequest.cs",
+              "RelativeToolTip": "Dtos\\CreatePostRequest.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAApAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-25T07:27:17.088Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "PostResponse.cs",
+              "DocumentMoniker": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Dtos\\PostResponse.cs",
+              "RelativeDocumentMoniker": "Dtos\\PostResponse.cs",
+              "ToolTip": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Dtos\\PostResponse.cs",
+              "RelativeToolTip": "Dtos\\PostResponse.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAKAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-24T13:18:32.153Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "GetUserResponse.cs",
+              "DocumentMoniker": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Dtos\\GetUserResponse.cs",
+              "RelativeDocumentMoniker": "Dtos\\GetUserResponse.cs",
+              "ToolTip": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Dtos\\GetUserResponse.cs",
+              "RelativeToolTip": "Dtos\\GetUserResponse.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAoAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-22T12:14:25.714Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Controllers\\UsersController.cs",
+              "RelativeDocumentMoniker": "Controllers\\UsersController.cs",
+              "ToolTip": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Controllers\\UsersController.cs",
+              "RelativeToolTip": "Controllers\\UsersController.cs",
+              "ViewState": "AQIAAD0AAAAAAAAAAAAowIQAAAAeAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-08T13:57:29.45Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Post.cs",
+              "DocumentMoniker": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Models\\Post.cs",
+              "RelativeDocumentMoniker": "Models\\Post.cs",
+              "ToolTip": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Models\\Post.cs",
+              "RelativeToolTip": "Models\\Post.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-24T13:00:38.228Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "GetUserRequest.cs",
+              "DocumentMoniker": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Dtos\\GetUserRequest.cs",
+              "RelativeDocumentMoniker": "Dtos\\GetUserRequest.cs",
+              "ToolTip": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Dtos\\GetUserRequest.cs",
+              "RelativeToolTip": "Dtos\\GetUserRequest.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAA1AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-22T12:14:43.838Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Models\\User.cs",
+              "RelativeDocumentMoniker": "Models\\User.cs",
+              "ToolTip": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Models\\User.cs",
+              "RelativeToolTip": "Models\\User.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAA1AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-22T09:42:54.644Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\king5\\Desktop\\dopamineinjector\\dopaminator-backend\\dopaminator-backend\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AQIAABsAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "ViewState": "AQIAACEAAAAAAAAAAAAowDMAAAA+AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-08T13:56:40.435Z",
               "EditorCaption": ""
