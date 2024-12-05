@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
+using Dopaminator.Services;
+using dopaminator_backend.Dtos;
 
 namespace Dopaminator.Controllers
 {
@@ -20,15 +22,25 @@ namespace Dopaminator.Controllers
         private readonly AppDbContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IConfiguration _configuration;
-        public UsersController(AppDbContext context, IPasswordHasher<User> passwordHasher, IConfiguration configuration)
+        private readonly MintableService _mintableService;
+        private readonly BlockchainService _blockchainService;
+        public UsersController(
+            AppDbContext context, 
+            IPasswordHasher<User> passwordHasher,
+            IConfiguration configuration, 
+            MintableService mintableService,
+            BlockchainService blockchainService
+            )
         {
             _context = context;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
+            _mintableService = mintableService;
+            _blockchainService = blockchainService;
         }
 
         [HttpPost("signup")]
-        public IActionResult SignUp([FromBody] CreateUserRequest request)
+        async public Task<IActionResult> SignUp([FromBody] CreateUserRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -41,13 +53,15 @@ namespace Dopaminator.Controllers
             }
             var user = new User
             {
+                Id = Guid.NewGuid(),
                 Username = request.Username,
                 Email = request.Email,
                 Password = _passwordHasher.HashPassword(null, request.Password),
                 Posts = []
             };
-            _context.Users.Add(user);
+            var dbUser =_context.Users.Add(user);
             _context.SaveChanges();
+            await _blockchainService.createWallet(dbUser.Entity.Id.ToString());
             var loginRequest = new LoginRequest
             {
                 Email = request.Email,
@@ -70,7 +84,7 @@ namespace Dopaminator.Controllers
             {
                 return Unauthorized(new { message = "Wrong email or password" });
             }
-
+            Console.WriteLine(user.Id.ToString());
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]);
             Console.WriteLine(key);
@@ -79,7 +93,7 @@ namespace Dopaminator.Controllers
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Claims = new Dictionary<string, object>{
-                    { "userId", user.Id }
+                    { "userId", user.Id.ToString() }
                 }
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -139,10 +153,25 @@ namespace Dopaminator.Controllers
 
         [HttpGet("spin")]
         [Authorize]
-        public IActionResult GetSpin()
+        public async Task<IActionResult> GetSpin()
         {
-            bool isWin = new Random().NextDouble() < 0.33;
-            return Ok(new { isWin });
+            //check account balance
+            SpinResponse response = new SpinResponse{isWin = new Random().NextDouble() < 0.33};
+
+            if(response.isWin) {
+                Mintable? mintedMintable = await _mintableService.Mint();
+                if(mintedMintable != null){
+                    response.Name = mintedMintable.Name;
+                    response.Image = mintedMintable.Image;
+                    BlockchainMintNftRequest blockchainMintNftRequest = new BlockchainMintNftRequest{
+                        user = GetUserId().ToString(),
+                        image = mintedMintable.Image,
+                        description = mintedMintable.Name,
+                    };
+                    await _blockchainService.mintNft(blockchainMintNftRequest);
+                }
+            }
+            return Ok(response);
         }
 
         [HttpGet("main")]
@@ -164,6 +193,28 @@ namespace Dopaminator.Controllers
             var fileName = Path.GetFileName(randomFile);
 
             return PhysicalFile(randomFile, "image/jpeg", fileName);
+        }
+
+        [HttpGet("balance")]
+        [Authorize]
+        public async Task<IActionResult> GetBalance()
+        {
+            var userId = GetUserId();
+            var wallet = await _blockchainService.getUserWallet(userId.ToString());
+            var response = new {balance = wallet.Balance};
+            return Ok(response);
+        }
+
+        private Guid? GetUserId()
+        {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+                return null;
+
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null)
+                return null;
+
+            return new Guid(userIdClaim.Value);
         }
     }
 

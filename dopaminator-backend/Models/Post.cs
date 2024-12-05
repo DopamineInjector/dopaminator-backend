@@ -10,7 +10,7 @@ namespace Dopaminator.Models
         [Required]
         public required string Content { get; set; }
 
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
         public User User { get; set; }
     }
 }

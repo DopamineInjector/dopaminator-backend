@@ -109,7 +109,7 @@ namespace Dopaminator.Controllers
         }
 
         // Helper method to extract the user ID from the claims
-        private int? GetUserId()
+        private Guid? GetUserId()
         {
             if (User.Identity == null || !User.Identity.IsAuthenticated)
                 return null;
@@ -118,7 +118,7 @@ namespace Dopaminator.Controllers
             if (userIdClaim == null)
                 return null;
 
-            return int.Parse(userIdClaim.Value);
+            return new Guid(userIdClaim.Value);
         }
     }
 }
