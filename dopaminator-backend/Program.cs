@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Dopaminator.Models;
+using Dopaminator.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -17,8 +18,12 @@ builder.Services.AddCors(options =>
 });
 
 var jwtKey = builder.Configuration["JwtSettings:SecretKey"];
+var imagePath = Path.Combine(Directory.GetCurrentDirectory(), builder.Configuration["MintableSettings:Path"]);
+var blockchainUrl = builder.Configuration["Blockchain:URL"];
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped(sp => new MintableService(sp.GetRequiredService<AppDbContext>(), imagePath));
+builder.Services.AddScoped(sp => new BlockchainService(blockchainUrl ?? "http://localhost:8083"));
 
 builder.Services.AddAuthentication(options =>
 {
@@ -62,10 +67,24 @@ app.UseCors("AllowSpecificOrigin");
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.UseStaticFiles();
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+try
+{
+    var mintableService = services.GetRequiredService<MintableService>();
+    await mintableService.Init();
+}
+catch (Exception ex)
+{
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occurred during initialization.");
+}
 
 app.Run();
