@@ -6,5 +6,6 @@ namespace Dopaminator.Dtos
     {
         public required string Username { get; set; }
         public ICollection<PostResponse> Posts { get; set; }
+        public int? WalletBalance { get; set; }
     }
 }

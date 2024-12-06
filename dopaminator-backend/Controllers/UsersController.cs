@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Dopaminator.Controllers
 {
@@ -39,8 +40,10 @@ namespace Dopaminator.Controllers
             {
                 return Conflict(new { message = "A user with this email address already exists." });
             }
+
             var user = new User
             {
+                Id = Guid.NewGuid(),
                 Username = request.Username,
                 Email = request.Email,
                 Password = _passwordHasher.HashPassword(null, request.Password),
@@ -48,6 +51,8 @@ namespace Dopaminator.Controllers
             };
             _context.Users.Add(user);
             _context.SaveChanges();
+            createUserWallet(user.Id);
+
             var loginRequest = new LoginRequest
             {
                 Email = request.Email,
@@ -79,7 +84,7 @@ namespace Dopaminator.Controllers
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Claims = new Dictionary<string, object>{
-                    { "userId", user.Id }
+                    { "userId", user.Id.ToString() }
                 }
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -108,7 +113,7 @@ namespace Dopaminator.Controllers
 
         [HttpPost("get")]
         [Authorize]
-        public IActionResult getUser([FromBody] GetUserRequest request)
+        public async Task<IActionResult> getUser([FromBody] GetUserRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -133,7 +138,18 @@ namespace Dopaminator.Controllers
                     Title = p.Title,
                     Content = p.Content
                 }).ToList(),
+                WalletBalance = null,
             };
+
+            if (user.Id == GetUserId())
+            {
+                int? walletBalance = await getUserWalletAsync(user.Id);
+                if (walletBalance.HasValue)
+                {
+                    response.WalletBalance = walletBalance;
+                }
+            }
+
             return Ok(response);
         }
 
@@ -164,6 +180,69 @@ namespace Dopaminator.Controllers
             var fileName = Path.GetFileName(randomFile);
 
             return PhysicalFile(randomFile, "image/jpeg", fileName);
+        }
+
+        private async void createUserWallet(Guid userId)
+        {
+            string url = "http://localhost:8083/api/wallet/" + userId.ToString();
+
+            using HttpClient client = new HttpClient();
+            try
+            {
+                HttpResponseMessage response = await client.PostAsync(url, null);
+                response.EnsureSuccessStatusCode(); // Rzuca wyj¹tek, jeœli kod statusu nie jest 2xx
+
+                //getUserWallet(userId);
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"Wyst¹pi³ b³¹d podczas tworzenia portfela: {e.Message}");
+            }
+        }
+
+        private async Task<int?> getUserWalletAsync(Guid userId)
+        {
+            string url = "http://localhost:8083/api/wallet/" + userId.ToString();
+
+            using HttpClient client = new HttpClient();
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode(); // Rzuca wyj¹tek, jeœli kod statusu nie jest 2xx
+
+                string responseBody = await response.Content.ReadAsStringAsync(); // Odczyt body jako string
+
+                // Deserializacja JSON
+                using JsonDocument doc = JsonDocument.Parse(responseBody);
+                JsonElement root = doc.RootElement;
+
+                // Wyci¹gniêcie pola balance
+                if (root.TryGetProperty("balance", out JsonElement balanceElement) &&
+                    balanceElement.TryGetInt32(out int balance))
+                {
+                    return balance;
+                }
+
+                Console.WriteLine("Pole 'balance' nie zosta³o znalezione w odpowiedzi.");
+                return null; // Zwraca null, jeœli pole balance nie istnieje
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"Wyst¹pi³ b³¹d podczas szukania portfela: {e.Message}");
+                return null;
+            }
+        }
+
+        private Guid? GetUserId()
+        {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+                return null;
+
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null)
+                return null;
+
+            return Guid.Parse(userIdClaim.Value);
         }
     }
 
