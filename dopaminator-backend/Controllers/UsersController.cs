@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Dopaminator.Services;
+using dopaminator_backend.Dtos;
 
 namespace Dopaminator.Controllers
 {
@@ -21,15 +23,25 @@ namespace Dopaminator.Controllers
         private readonly AppDbContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IConfiguration _configuration;
-        public UsersController(AppDbContext context, IPasswordHasher<User> passwordHasher, IConfiguration configuration)
+        private readonly MintableService _mintableService;
+        private readonly BlockchainService _blockchainService;
+        public UsersController(
+            AppDbContext context, 
+            IPasswordHasher<User> passwordHasher,
+            IConfiguration configuration, 
+            MintableService mintableService,
+            BlockchainService blockchainService
+            )
         {
             _context = context;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
+            _mintableService = mintableService;
+            _blockchainService = blockchainService;
         }
 
         [HttpPost("signup")]
-        public IActionResult SignUp([FromBody] CreateUserRequest request)
+        async public Task<IActionResult> SignUp([FromBody] CreateUserRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -49,10 +61,9 @@ namespace Dopaminator.Controllers
                 Password = _passwordHasher.HashPassword(null, request.Password),
                 Posts = []
             };
-            _context.Users.Add(user);
+            var dbUser =_context.Users.Add(user);
             _context.SaveChanges();
-            createUserWallet(user.Id);
-
+            await _blockchainService.createWallet(dbUser.Entity.Id.ToString());
             var loginRequest = new LoginRequest
             {
                 Email = request.Email,
@@ -75,7 +86,7 @@ namespace Dopaminator.Controllers
             {
                 return Unauthorized(new { message = "Wrong email or password" });
             }
-
+            Console.WriteLine(user.Id.ToString());
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]);
             Console.WriteLine(key);
@@ -155,10 +166,25 @@ namespace Dopaminator.Controllers
 
         [HttpGet("spin")]
         [Authorize]
-        public IActionResult GetSpin()
+        public async Task<IActionResult> GetSpin()
         {
-            bool isWin = new Random().NextDouble() < 0.33;
-            return Ok(new { isWin });
+            //check account balance
+            SpinResponse response = new SpinResponse{isWin = new Random().NextDouble() < 0.33};
+
+            if(response.isWin) {
+                Mintable? mintedMintable = await _mintableService.Mint();
+                if(mintedMintable != null){
+                    response.Name = mintedMintable.Name;
+                    response.Image = mintedMintable.Image;
+                    BlockchainMintNftRequest blockchainMintNftRequest = new BlockchainMintNftRequest{
+                        user = GetUserId().ToString(),
+                        image = mintedMintable.Image,
+                        description = mintedMintable.Name,
+                    };
+                    await _blockchainService.mintNft(blockchainMintNftRequest);
+                }
+            }
+            return Ok(response);
         }
 
         [HttpGet("main")]
@@ -182,55 +208,14 @@ namespace Dopaminator.Controllers
             return PhysicalFile(randomFile, "image/jpeg", fileName);
         }
 
-        private async void createUserWallet(Guid userId)
+        [HttpGet("balance")]
+        [Authorize]
+        public async Task<IActionResult> GetBalance()
         {
-            string url = "http://localhost:8083/api/wallet/" + userId.ToString();
-
-            using HttpClient client = new HttpClient();
-            try
-            {
-                HttpResponseMessage response = await client.PostAsync(url, null);
-                response.EnsureSuccessStatusCode(); // Rzuca wyj¹tek, jeœli kod statusu nie jest 2xx
-
-                //getUserWallet(userId);
-            }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine($"Wyst¹pi³ b³¹d podczas tworzenia portfela: {e.Message}");
-            }
-        }
-
-        private async Task<int?> getUserWalletAsync(Guid userId)
-        {
-            string url = "http://localhost:8083/api/wallet/" + userId.ToString();
-
-            using HttpClient client = new HttpClient();
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode(); // Rzuca wyj¹tek, jeœli kod statusu nie jest 2xx
-
-                string responseBody = await response.Content.ReadAsStringAsync(); // Odczyt body jako string
-
-                // Deserializacja JSON
-                using JsonDocument doc = JsonDocument.Parse(responseBody);
-                JsonElement root = doc.RootElement;
-
-                // Wyci¹gniêcie pola balance
-                if (root.TryGetProperty("balance", out JsonElement balanceElement) &&
-                    balanceElement.TryGetInt32(out int balance))
-                {
-                    return balance;
-                }
-
-                Console.WriteLine("Pole 'balance' nie zosta³o znalezione w odpowiedzi.");
-                return null; // Zwraca null, jeœli pole balance nie istnieje
-            }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine($"Wyst¹pi³ b³¹d podczas szukania portfela: {e.Message}");
-                return null;
-            }
+            var userId = GetUserId();
+            var wallet = await _blockchainService.getUserWallet(userId.ToString());
+            var response = new {balance = wallet.Balance};
+            return Ok(response);
         }
 
         private Guid? GetUserId()
@@ -242,7 +227,7 @@ namespace Dopaminator.Controllers
             if (userIdClaim == null)
                 return null;
 
-            return Guid.Parse(userIdClaim.Value);
+            return new Guid(userIdClaim.Value);
         }
     }
 
