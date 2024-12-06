@@ -118,7 +118,7 @@ namespace Dopaminator.Controllers
             if (userIdClaim == null)
                 return null;
 
-            return Guid.Parse(userIdClaim.Value);
+            return new Guid(userIdClaim.Value);
         }
     }
 }
