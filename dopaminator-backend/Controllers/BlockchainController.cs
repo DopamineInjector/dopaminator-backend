@@ -55,6 +55,31 @@ namespace Dopaminator.Controllers
             return Ok();
         }
 
+        [HttpPost("deposit")]
+        [Authorize]
+        public async Task<IActionResult> DepositFunds([FromBody] WithdrawFundsRequest request) 
+        {
+            if (request.Amount < 1) {
+                return BadRequest("Imagine trying to cheese the system lil fella");
+            }
+            var userId = GetUserId();
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+            // Incredibly based check mechanism
+            for (int i = 0; i<5; i++) {
+                await this._blockchainService.transferDopeToAdminWallet(userId.ToString(), 1);
+            }
+            var walletInfo = await this._blockchainService.getUserWallet(userId.ToString());
+            if(walletInfo.Balance < request.Amount) {
+                return BadRequest("You are too broke to withdraw that much lil bro");
+            }
+            await this._blockchainService.transferDopeToAdminWallet(userId.ToString(), request.Amount);
+            user.Balance += request.Amount;
+            this._context.Update(user);
+            this._context.SaveChanges();
+            return Ok();
+        }
+
+
         [HttpPost("transfer")]
         [Authorize]
         public async Task<IActionResult> TransferFunds([FromBody] TransferFundsRequest request) 
