@@ -70,7 +70,7 @@ namespace Dopaminator.Controllers
             }
             var walletInfo = await this._blockchainService.getUserWallet(userId.ToString());
             if(walletInfo.Balance < request.Amount) {
-                return BadRequest("You are too broke to withdraw that much lil bro");
+                return BadRequest(new {message = "You are too broke to withdraw that much lil bro"});
             }
             await this._blockchainService.transferDopeToAdminWallet(userId.ToString(), request.Amount);
             user.Balance += request.Amount;
