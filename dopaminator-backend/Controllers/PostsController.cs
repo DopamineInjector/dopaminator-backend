@@ -99,7 +99,8 @@ namespace Dopaminator.Controllers
             if (user == null) {
                 return Unauthorized(new {message = "For some reason user is unauthorized"});
             }
-            if(post.Author.Id.Equals(user.Id)) {
+            User postAuthor = post.Author;
+            if(postAuthor.Id.Equals(user.Id)) {
                 return StatusCode(409, new {message = "Cannot buy own post"});
             }
             if(this.IsBoughtByAuthUser(post)) {
