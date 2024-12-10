@@ -72,5 +72,15 @@ namespace Dopaminator.Services
             };
             await transferDope(transferDopeRequest);
         }
+
+        public async Task withdrawFundsToUserWallet(string userId, float amount){
+
+            var transferDopeRequest = new BlockchainTransferDopeRequest{
+                Sender = _adminUuid,
+                Recipient = userId,
+                Amount = amount
+            };
+            await transferDope(transferDopeRequest);
+        }
     }
 }
