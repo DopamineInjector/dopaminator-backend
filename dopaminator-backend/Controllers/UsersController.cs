@@ -138,6 +138,7 @@ namespace Dopaminator.Controllers
             var response = new GetUserResponse
             {
                 Username = user.Username,
+                Id = user.Id,
                 Posts = user.Posts.Select(p => new PostResponse
                 {
                     Id = p.Id,

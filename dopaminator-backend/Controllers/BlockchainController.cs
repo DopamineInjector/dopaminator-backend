@@ -48,10 +48,31 @@ namespace Dopaminator.Controllers
                 return BadRequest("You are too broke to withdraw that much lil bro");
             }
             int taxedAmount = (int)((1-this.TAX_RATE) * request.Amount);
-            this._blockchainService.withdrawFundsToUserWallet(userId.ToString(), taxedAmount);
+            await this._blockchainService.withdrawFundsToUserWallet(userId.ToString(), taxedAmount);
             user.Balance -= request.Amount;
             this._context.Update(user);
             this._context.SaveChanges();
+            return Ok();
+        }
+
+        [HttpPost("transfer")]
+        [Authorize]
+        public async Task<IActionResult> TransferFunds([FromBody] TransferFundsRequest request) 
+        {
+            var userId = GetUserId();
+            var recipient = _context.Users.FirstOrDefault(u => u.Id == request.Recipient);
+            if (recipient == null) {
+                return BadRequest("that bro does not exist");
+            }
+            if (request.Amount < 1) {
+                return BadRequest("Imagine trying to cheese the system lil fella");
+            }
+            var serveRequest = new BlockchainTransferDopeRequest {
+                Sender = userId.ToString(),
+                Recipient = request.Recipient.ToString(),
+                Amount = request.Amount
+            };
+            await this._blockchainService.transferDope(serveRequest);
             return Ok();
         }
 
