@@ -3,6 +3,7 @@
     public class CreatePostRequest
     {
         public required string Title { get; set; }
-        public required string Content { get; set; }
+        public required byte[] Content { get; set; }
+        public required float Price {get; set;}
     }
 }

@@ -1,124 +1,118 @@
 ﻿using Dopaminator.Models;
+using Dopaminator.Services;
 using dopaminator_backend.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Dopaminator.Dtos;
 
 namespace Dopaminator.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class PostsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly ImageService _imageSerice;
+        private readonly PostService _postService;
 
-        public PostsController(AppDbContext context)
+        public PostsController(AppDbContext context, ImageService service, PostService postService)
         {
             _context = context;
-        }
-
-        // GET: api/Post
-        [HttpGet("get")]
-        public async Task<IActionResult> GetAll()
-        {
-            var posts = await _context.Posts
-                .Include(p => p.User)
-                .ToListAsync();
-            return Ok(posts);
+            this._imageSerice = service;
+            this._postService = postService;
         }
 
         // GET: api/Post/{id}
         [HttpGet("get/{id}")]
-        public async Task<IActionResult> Get(int id)
+        [Authorize]
+        public async Task<IActionResult> Get(Guid id)
         {
-            var post = await _context.Posts
-                .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (post == null)
-                return NotFound("Post not found.");
-
-            return Ok(post);
+            var post = this.GetPostFromDb(id); 
+            if (post == null) {
+                return NotFound(new {message = "No such post"});
+            }
+            User? user = this.GetAuthorizedUser();
+            if (user == null) {
+                return Unauthorized(new {message = "For some reason user is unauthorized"});
+            }
+            PostResponse? res = this._postService.ParsePostForUser(id, user.Id);
+            return Ok(res);
         }
 
         // POST: api/Post
         [HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreatePostRequest body)
         {
-            var userId = GetUserId();
-            if (userId == null)
-                return Unauthorized("User not authorized.");
-
-            var post = new Post
-            {
+            if(body.Price < 1) {
+                return BadRequest(new {message = "Invalid post price"});
+            }
+            User? user = this.GetAuthorizedUser();
+            if(user == null) {
+                return Unauthorized(new {message = "For some reason user is unauthorized"});
+            }
+            byte[] blurred = this._imageSerice.BlurImage(body.Content);
+            Post created = new Post {
+                Id = Guid.NewGuid(),
+                Price = body.Price,
+                ImageData = body.Content,
+                BlurredImageData = blurred,
+                Author = user,
                 Title = body.Title,
-                Content = body.Content,
-                UserId = userId.Value
             };
-
-            _context.Posts.Add(post);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(Get), new { id = post.Id }, post);
+            await this._context.Posts.AddAsync(created);
+            this._context.SaveChanges();
+            return Created();
         }
 
         // PUT: api/Post/{id}
         [HttpPut("edit/{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] CreatePostRequest updatedPost)
+        [Authorize]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePostRequest updatedPost)
         {
-            var userId = GetUserId();
-            if (userId == null)
-                return Unauthorized("User not authorized.");
-
-            var post = await _context.Posts.FindAsync(id);
-            if (post == null)
-                return NotFound("Post not found.");
-
-            if (post.UserId != userId.Value)
-                return Forbid("You are not the owner of this post.");
-
-            post.Title = updatedPost.Title;
-            post.Content = updatedPost.Content;
-
-            _context.Posts.Update(post);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            Post? post = this.GetPostFromDb(id);
+            if(post == null) {
+                return NotFound(new {message = "No such post"});
+            }
+            User? user = this.GetAuthorizedUser();
+            if (user == null) {
+                return Unauthorized(new {message = "For some reason user is unauthorized"});
+            }
+            if(!post.Author.Id.Equals(user.Id)) {
+                return StatusCode(403, new {message = "Can not edit post"});
+            }
+            post.Price = updatedPost.Price;
+            this._context.Posts.Update(post);
+            this._context.SaveChanges();
+            return Created();
         }
 
-        // DELETE: api/Post/{id}
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var userId = GetUserId();
-            if (userId == null)
-                return Unauthorized("User not authorized.");
-
-            var post = await _context.Posts.FindAsync(id);
-            if (post == null)
-                return NotFound("Post not found.");
-
-            if (post.UserId != userId.Value)
-                return Forbid("You are not the owner of this post.");
-
-            _context.Posts.Remove(post);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        // Helper method to extract the user ID from the claims
         private Guid? GetUserId()
         {
             if (User.Identity == null || !User.Identity.IsAuthenticated)
                 return null;
-
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
                 return null;
-
             return new Guid(userIdClaim.Value);
+        }
+
+        private User? GetAuthorizedUser() {
+            Guid? id = this.GetUserId();
+            if(id == null) {
+                return null;
+            }
+            return this._context.Users.First(u => u.Id.Equals(id));
+        }
+
+        private bool IsBoughtByAuthUser(Post post) {
+            var id = this.GetUserId();
+            return post.PurchasedBy.Find(p => p.Id.Equals(id)) != null;
+        }
+
+        private Post? GetPostFromDb(Guid postId) {
+            return this._context.Posts.First(p => p.Id.Equals(postId));
         }
     }
 }

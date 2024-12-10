@@ -18,8 +18,7 @@ namespace Dopaminator.Models
         {
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Posts)
-                .WithOne(p => p.User)
-                .HasForeignKey(p => p.UserId)
+                .WithOne(p => p.Author)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Auction>()

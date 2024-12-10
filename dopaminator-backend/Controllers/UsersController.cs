@@ -21,17 +21,20 @@ namespace Dopaminator.Controllers
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IConfiguration _configuration;
         private readonly BlockchainService _blockchainService;
+        private readonly PostService _postService;
         public UsersController(
             AppDbContext context,
             IPasswordHasher<User> passwordHasher,
             IConfiguration configuration,
-            BlockchainService blockchainService
+            BlockchainService blockchainService,
+            PostService postService
             )
         {
             _context = context;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
             _blockchainService = blockchainService;
+            this._postService=  postService;
         }
 
         [HttpPost("signup")]
@@ -134,17 +137,16 @@ namespace Dopaminator.Controllers
             {
                 return NotFound("User not found.");
             }
+            Guid? authId = this.GetUserId();
+            if (authId == null) {
+                return Unauthorized(new {message = "For some reason user is unauthorized"});
+            }
 
             var response = new GetUserResponse
             {
                 Username = user.Username,
                 Id = user.Id,
-                Posts = user.Posts.Select(p => new PostResponse
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    Content = p.Content
-                }).ToList(),
+                Posts = user.Posts.Select(p => this._postService.ParsePostForUser(p.Id, authId ?? Guid.Empty)).ToList()
             };
             return Ok(response);
         }
@@ -168,6 +170,16 @@ namespace Dopaminator.Controllers
             var fileName = Path.GetFileName(randomFile);
 
             return PhysicalFile(randomFile, "image/jpeg", fileName);
+        }
+
+        private Guid? GetUserId()
+        {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+                return null;
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null)
+                return null;
+            return new Guid(userIdClaim.Value);
         }
     }
 }

@@ -25,6 +25,8 @@ var adminUuid = builder.Configuration["Admin:GUID"];
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped(sp => new MintableService(sp.GetRequiredService<AppDbContext>(), imagePath));
 builder.Services.AddScoped(sp => new BlockchainService(blockchainUrl ?? "http://localhost:8083", adminUuid));
+builder.Services.AddScoped(sp => new ImageService());
+builder.Services.AddScoped(sp => new PostService(sp.GetRequiredService<AppDbContext>()));
 
 builder.Services.AddAuthentication(options =>
 {

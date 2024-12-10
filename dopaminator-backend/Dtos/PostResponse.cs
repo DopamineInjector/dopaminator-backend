@@ -2,8 +2,10 @@
 {
     public class PostResponse
     {
-        public required int Id { get; set; }
+        public required Guid Id { get; set; }
         public required string Title { get; set; }
-        public required string Content { get; set; }
+        public required byte[] Content { get; set; }
+        public required float Price {get; set;}
+        public required bool IsOwned {get; set;}
     }
 }
