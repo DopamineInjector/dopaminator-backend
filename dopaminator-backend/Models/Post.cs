@@ -19,6 +19,7 @@ namespace Dopaminator.Models
 
         [Required]
         public required User Author { get; set; }
+        public required Guid UserId {get; set;}
 
         // New ting: List of users who copped access to di post.
         public List<User> PurchasedBy { get; set; } = new();
