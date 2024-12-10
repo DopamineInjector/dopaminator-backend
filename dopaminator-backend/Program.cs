@@ -78,6 +78,8 @@ using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 try
 {
+    var dbContext = services.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
     var mintableService = services.GetRequiredService<MintableService>();
     await mintableService.Init();
 }
