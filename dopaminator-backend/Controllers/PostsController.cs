@@ -61,6 +61,7 @@ namespace Dopaminator.Controllers
                 Author = user,
                 Title = body.Title,
             };
+            Console.WriteLine(created.Author.ToString());
             await this._context.Posts.AddAsync(created);
             this._context.SaveChanges();
             return Created();

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Dopaminator.Models
 {
@@ -20,7 +18,7 @@ namespace Dopaminator.Models
         public required float Price {get; set;}
 
         [Required]
-        public User Author { get; set; }
+        public required User Author { get; set; }
 
         // New ting: List of users who copped access to di post.
         public List<User> PurchasedBy { get; set; } = new();
