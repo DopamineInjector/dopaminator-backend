@@ -14,6 +14,7 @@ namespace Dopaminator.Controllers
     {
         private readonly AppDbContext _context;
         private readonly BlockchainService _blockchainService;
+        private readonly float TAX_RATE = 0.1F;
         public BlockchainController(
             AppDbContext context,
             BlockchainService blockchainService
@@ -32,6 +33,23 @@ namespace Dopaminator.Controllers
             var wallet = await _blockchainService.getUserWallet(userId.ToString());
             var response = new GetBalanceResponse { BlockchainBalance = wallet.Balance, DepositBalance = user.Balance };
             return Ok(response);
+        }
+
+        [HttpPost("withdraw")]
+        [Authorize]
+        public async Task<IActionResult> WithdrawFunds([FromBody] WithdrawFundsRequest request) 
+        {
+            var userId = GetUserId();
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if(user.Balance < request.Amount) {
+                return BadRequest("You are too broke to withdraw that much lil bro");
+            }
+            int taxedAmount = (int)((1-this.TAX_RATE) * request.Amount);
+            this._blockchainService.withdrawFundsToUserWallet(userId.ToString(), taxedAmount);
+            user.Balance -= request.Amount;
+            this._context.Update(user);
+            this._context.SaveChanges();
+            return Ok();
         }
 
         [HttpPost("sell")]
