@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Dopaminator.Services;
+using System.ComponentModel;
 
 namespace Dopaminator.Controllers
 {
@@ -51,11 +52,13 @@ namespace Dopaminator.Controllers
                 Username = request.Username,
                 Email = request.Email,
                 Password = _passwordHasher.HashPassword(null, request.Password),
+                Balance = 400,
                 Posts = []
             };
             var dbUser = _context.Users.Add(user);
             _context.SaveChanges();
             await _blockchainService.createWallet(dbUser.Entity.Id.ToString());
+            await _blockchainService.transferDopeToAdminWallet(user.Id.ToString(), 500);
             var loginRequest = new LoginRequest
             {
                 Email = request.Email,

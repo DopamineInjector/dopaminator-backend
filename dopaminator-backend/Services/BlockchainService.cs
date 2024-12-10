@@ -7,7 +7,9 @@ namespace Dopaminator.Services
     {
 
         private readonly HttpClient _httpClient;
-        public BlockchainService(string blockchainUrl)
+
+        private readonly string _adminUuid;
+        public BlockchainService(string blockchainUrl, string adminUuid)
         {
             var httpHandler = new HttpInterceptor
             {
@@ -18,6 +20,11 @@ namespace Dopaminator.Services
             {
                 BaseAddress = new Uri(blockchainUrl)
             };
+            _adminUuid = adminUuid;
+        }
+
+        public async Task Init(){
+            createWallet(_adminUuid);
         }
 
         public async Task createWallet(string userId)
@@ -55,6 +62,15 @@ namespace Dopaminator.Services
         {
             var response = await _httpClient.PostAsJsonAsync($"/api/transfer", body);
             return;
+        }
+
+        public async Task transferDopeToAdminWallet(string userId, float amount){
+            var transferDopeRequest = new BlockchainTransferDopeRequest{
+                Sender = userId,
+                Recipient = _adminUuid,
+                Amount = amount
+            };
+            await transferDope(transferDopeRequest);
         }
     }
 }

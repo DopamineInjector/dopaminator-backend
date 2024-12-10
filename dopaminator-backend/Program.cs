@@ -20,10 +20,11 @@ builder.Services.AddCors(options =>
 var jwtKey = builder.Configuration["JwtSettings:SecretKey"];
 var imagePath = Path.Combine(Directory.GetCurrentDirectory(), builder.Configuration["MintableSettings:Path"]);
 var blockchainUrl = builder.Configuration["Blockchain:URL"];
+var adminUuid = builder.Configuration["Admin:GUID"];
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped(sp => new MintableService(sp.GetRequiredService<AppDbContext>(), imagePath));
-builder.Services.AddScoped(sp => new BlockchainService(blockchainUrl ?? "http://localhost:8083"));
+builder.Services.AddScoped(sp => new BlockchainService(blockchainUrl ?? "http://localhost:8083", adminUuid));
 
 builder.Services.AddAuthentication(options =>
 {
@@ -82,6 +83,8 @@ try
     dbContext.Database.Migrate();
     var mintableService = services.GetRequiredService<MintableService>();
     await mintableService.Init();
+    var blockchainService = services.GetRequiredService<BlockchainService>();
+    await blockchainService.Init();
 }
 catch (Exception ex)
 {

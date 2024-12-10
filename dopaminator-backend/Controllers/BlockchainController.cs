@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Dopaminator.Services;
 using dopaminator_backend.Dtos;
 using Microsoft.EntityFrameworkCore;
+using Dopaminator.Dtos;
 
 namespace Dopaminator.Controllers
 {
@@ -27,8 +28,9 @@ namespace Dopaminator.Controllers
         public async Task<IActionResult> GetBalance()
         {
             var userId = GetUserId();
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
             var wallet = await _blockchainService.getUserWallet(userId.ToString());
-            var response = new { balance = wallet.Balance };
+            var response = new GetBalanceResponse { BlockchainBalance = wallet.Balance, DepositBalance = user.Balance };
             return Ok(response);
         }
 
@@ -59,21 +61,21 @@ namespace Dopaminator.Controllers
         public async Task<IActionResult> BuyNft([FromBody] BuyNftRequest request)
         {
             var userId = GetUserId();
-            var userWallet = await _blockchainService.getUserWallet(userId.ToString());
-            if(userWallet.Balance < request.Price){
+            var buyer = _context.Users.FirstOrDefault(u => u.Id == userId);
+            var seller = _context.Users.FirstOrDefault(u => u.Id == request.UserId);
+            if(buyer.Balance < request.Price){
                 return Conflict(new { message = "Insufficient balance." });
             }
-            var transferDopeRequest = new BlockchainTransferDopeRequest {
-                Sender = userId.ToString(),
-                Recipient = request.UserId.ToString(),
-                Amount = request.Price,
-            };
+            buyer.Balance -= request.Price;
+            seller.Balance += request.Price;
+            _context.Users.Update(buyer);
+            _context.Users.Update(seller);
+            _context.SaveChanges();
             var transferNftRequest = new BlockchainTransferNftRequest {
                 Recipient = userId.ToString(),
                 Sender = request.UserId.ToString(),
                 TokenId = request.TokenId,
             };
-            await _blockchainService.transferDope(transferDopeRequest);
             await _blockchainService.transferNft(transferNftRequest);
             var auctionsToDelete = _context.Auctions
                 .Where(a => a.TokenId == request.TokenId)

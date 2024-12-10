@@ -17,7 +17,7 @@ namespace Dopaminator.Models
         [Required]
         public required string Password { get; set; }
 
-        public string? WalletId { get; set; }
+        public required float Balance { get; set; }
 
         public ICollection<Post> Posts { get; set; }
 

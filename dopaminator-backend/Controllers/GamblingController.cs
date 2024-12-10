@@ -13,20 +13,33 @@ namespace Dopaminator.Controllers
     {
         private readonly MintableService _mintableService;
         private readonly BlockchainService _blockchainService;
+
+        private readonly float spinCost = 50;
+
+        private readonly AppDbContext _context;
         public GamblingController(
             MintableService mintableService,
-            BlockchainService blockchainService
+            BlockchainService blockchainService,
+            AppDbContext appDbContext
             )
         {
             _mintableService = mintableService;
             _blockchainService = blockchainService;
+            _context = appDbContext;
         }
 
         [HttpGet("spin")]
         [Authorize]
         public async Task<IActionResult> GetSpin()
         {
-            //todo check account balance
+            var userId = GetUserId();
+            var dbUser = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if(dbUser.Balance < spinCost){
+                return BadRequest(new { message = "Insufficient balance" });
+            }
+            dbUser.Balance -= spinCost;
+            _context.Users.Update(dbUser);
+            _context.SaveChanges();
             SpinResponse response = new SpinResponse { isWin = new Random().NextDouble() < 0.33 };
             if (response.isWin)
             {
