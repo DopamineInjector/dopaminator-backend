@@ -76,10 +76,6 @@ namespace Dopaminator.Controllers
             user.Balance += request.Amount;
             this._context.Update(user);
             this._context.SaveChanges();
-            // Incredibly based check mechanism
-            for (int i = 0; i<5; i++) {
-                await this._blockchainService.transferDopeToAdminWallet(userId.ToString(), 1);
-            }
             return Ok();
         }
 
