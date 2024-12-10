@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace dopaminator_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241206181623_allesauctiones")]
-    partial class allesauctiones
+    [Migration("20241210215059_alleswirdgut")]
+    partial class alleswirdgut
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,26 +84,31 @@ namespace dopaminator_backend.Migrations
 
             modelBuilder.Entity("Dopaminator.Models.Post", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("Content")
+                    b.Property<byte[]>("BlurredImageData")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("bytea");
+
+                    b.Property<byte[]>("ImageData")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<float>("Price")
+                        .HasColumnType("real");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("AuthorId");
 
                     b.ToTable("Posts");
                 });
@@ -114,6 +119,9 @@ namespace dopaminator_backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<float>("Balance")
+                        .HasColumnType("real");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
@@ -122,14 +130,16 @@ namespace dopaminator_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("PostId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("WalletId")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("PostId");
 
                     b.ToTable("Users");
                 });
@@ -155,13 +165,25 @@ namespace dopaminator_backend.Migrations
 
             modelBuilder.Entity("Dopaminator.Models.Post", b =>
                 {
-                    b.HasOne("Dopaminator.Models.User", "User")
+                    b.HasOne("Dopaminator.Models.User", "Author")
                         .WithMany("Posts")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("Dopaminator.Models.User", b =>
+                {
+                    b.HasOne("Dopaminator.Models.Post", null)
+                        .WithMany("PurchasedBy")
+                        .HasForeignKey("PostId");
+                });
+
+            modelBuilder.Entity("Dopaminator.Models.Post", b =>
+                {
+                    b.Navigation("PurchasedBy");
                 });
 
             modelBuilder.Entity("Dopaminator.Models.User", b =>
