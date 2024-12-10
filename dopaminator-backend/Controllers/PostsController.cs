@@ -88,6 +88,37 @@ namespace Dopaminator.Controllers
             return Created();
         }
 
+        [HttpPut("buy/{id}")]
+        [Authorize]
+        public async Task<IActionResult> BuyPost(Guid id) {
+            Post? post = this.GetPostFromDb(id);
+            if(post == null) {
+                return NotFound(new {message = "No such post"});
+            }
+            User? user = this.GetAuthorizedUser();
+            if (user == null) {
+                return Unauthorized(new {message = "For some reason user is unauthorized"});
+            }
+            if(post.Author.Id.Equals(user.Id)) {
+                return StatusCode(409, new {message = "Cannot buy own post"});
+            }
+            if(this.IsBoughtByAuthUser(post)) {
+                return StatusCode(409, new {message = "Post already bought"});
+            }
+            if(user.Balance < post.Price) {
+                return StatusCode(400, new {message = "Cannot afford this post. Maybe stop buying pics on the internet and get an actual job lil bro"});
+            }
+            User author = post.Author;
+            user.Balance -= post.Price;
+            author.Balance += post.Price;
+            post.PurchasedBy.Add(user);
+            this._context.Users.Update(user);
+            this._context.Users.Update(author);
+            this._context.Posts.Update(post);
+            this._context.SaveChanges();
+            return Ok(new {message = "bought da post"});
+        }
+
         private Guid? GetUserId()
         {
             if (User.Identity == null || !User.Identity.IsAuthenticated)
