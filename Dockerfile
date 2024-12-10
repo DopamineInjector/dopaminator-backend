@@ -14,5 +14,6 @@ RUN dotnet publish -c Release -o /app/publish
 FROM base AS release
 WORKDIR /app
 COPY --from=builder /app/publish .
+COPY ./dopaminator-backend/mintables /app/mintables
 RUN ls -la
 ENTRYPOINT ["dotnet", "/app/dopaminator-backend.dll"]
