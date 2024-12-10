@@ -39,6 +39,9 @@ namespace Dopaminator.Controllers
         [Authorize]
         public async Task<IActionResult> WithdrawFunds([FromBody] WithdrawFundsRequest request) 
         {
+            if (request.Amount < 1) {
+                return BadRequest("Imagine trying to cheese the system lil fella");
+            }
             var userId = GetUserId();
             var user = _context.Users.FirstOrDefault(u => u.Id == userId);
             if(user.Balance < request.Amount) {
