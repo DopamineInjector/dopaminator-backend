@@ -10,6 +10,6 @@ namespace Dopaminator.Models
         [Required]
         public required string Name { get; set; }
         [Required]
-        public required byte[] Image { get; set;}
+        public required byte[] Image { get; set; }
     }
 }

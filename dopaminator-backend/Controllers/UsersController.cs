@@ -6,11 +6,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
 using Dopaminator.Services;
-using dopaminator_backend.Dtos;
 
 namespace Dopaminator.Controllers
 {
@@ -22,20 +19,17 @@ namespace Dopaminator.Controllers
         private readonly AppDbContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IConfiguration _configuration;
-        private readonly MintableService _mintableService;
         private readonly BlockchainService _blockchainService;
         public UsersController(
-            AppDbContext context, 
+            AppDbContext context,
             IPasswordHasher<User> passwordHasher,
-            IConfiguration configuration, 
-            MintableService mintableService,
+            IConfiguration configuration,
             BlockchainService blockchainService
             )
         {
             _context = context;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
-            _mintableService = mintableService;
             _blockchainService = blockchainService;
         }
 
@@ -59,7 +53,7 @@ namespace Dopaminator.Controllers
                 Password = _passwordHasher.HashPassword(null, request.Password),
                 Posts = []
             };
-            var dbUser =_context.Users.Add(user);
+            var dbUser = _context.Users.Add(user);
             _context.SaveChanges();
             await _blockchainService.createWallet(dbUser.Entity.Id.ToString());
             var loginRequest = new LoginRequest
@@ -151,29 +145,6 @@ namespace Dopaminator.Controllers
             return Ok(response);
         }
 
-        [HttpGet("spin")]
-        [Authorize]
-        public async Task<IActionResult> GetSpin()
-        {
-            //check account balance
-            SpinResponse response = new SpinResponse{isWin = new Random().NextDouble() < 0.33};
-
-            if(response.isWin) {
-                Mintable? mintedMintable = await _mintableService.Mint();
-                if(mintedMintable != null){
-                    response.Name = mintedMintable.Name;
-                    response.Image = mintedMintable.Image;
-                    BlockchainMintNftRequest blockchainMintNftRequest = new BlockchainMintNftRequest{
-                        user = GetUserId().ToString(),
-                        image = mintedMintable.Image,
-                        description = mintedMintable.Name,
-                    };
-                    await _blockchainService.mintNft(blockchainMintNftRequest);
-                }
-            }
-            return Ok(response);
-        }
-
         [HttpGet("main")]
         public IActionResult GetMainPageImg()
         {
@@ -183,7 +154,7 @@ namespace Dopaminator.Controllers
             }
 
             var files = Directory.GetFiles(_imagesPath, "*.jpg");
-            
+
             if (files.Length == 0)
             {
                 return NotFound("No images found.");
@@ -194,28 +165,5 @@ namespace Dopaminator.Controllers
 
             return PhysicalFile(randomFile, "image/jpeg", fileName);
         }
-
-        [HttpGet("balance")]
-        [Authorize]
-        public async Task<IActionResult> GetBalance()
-        {
-            var userId = GetUserId();
-            var wallet = await _blockchainService.getUserWallet(userId.ToString());
-            var response = new {balance = wallet.Balance};
-            return Ok(response);
-        }
-
-        private Guid? GetUserId()
-        {
-            if (User.Identity == null || !User.Identity.IsAuthenticated)
-                return null;
-
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
-            if (userIdClaim == null)
-                return null;
-
-            return new Guid(userIdClaim.Value);
-        }
     }
-
 }

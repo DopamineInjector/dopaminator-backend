@@ -39,7 +39,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
-     options.Events = new JwtBearerEvents
+    options.Events = new JwtBearerEvents
     {
         OnChallenge = context =>
         {

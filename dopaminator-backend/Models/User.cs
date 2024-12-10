@@ -20,5 +20,7 @@ namespace Dopaminator.Models
         public string? WalletId { get; set; }
 
         public ICollection<Post> Posts { get; set; }
+
+        public ICollection<Auction> Auctions { get; set; } = new List<Auction>();
     }
 }

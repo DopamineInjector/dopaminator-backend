@@ -22,6 +22,39 @@ namespace dopaminator_backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Dopaminator.Models.Auction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("MintableId")
+                        .HasColumnType("integer");
+
+                    b.Property<float>("Price")
+                        .HasColumnType("real");
+
+                    b.Property<int>("TokenId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MintableId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Auctions");
+                });
+
             modelBuilder.Entity("Dopaminator.Models.Mintable", b =>
                 {
                     b.Property<int>("Id")
@@ -98,6 +131,25 @@ namespace dopaminator_backend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Dopaminator.Models.Auction", b =>
+                {
+                    b.HasOne("Dopaminator.Models.Mintable", "Mintable")
+                        .WithMany()
+                        .HasForeignKey("MintableId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Dopaminator.Models.User", "User")
+                        .WithMany("Auctions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Mintable");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Dopaminator.Models.Post", b =>
                 {
                     b.HasOne("Dopaminator.Models.User", "User")
@@ -111,6 +163,8 @@ namespace dopaminator_backend.Migrations
 
             modelBuilder.Entity("Dopaminator.Models.User", b =>
                 {
+                    b.Navigation("Auctions");
+
                     b.Navigation("Posts");
                 });
 #pragma warning restore 612, 618

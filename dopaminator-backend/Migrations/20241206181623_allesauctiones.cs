@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace dopaminator_backend.Migrations
 {
     /// <inheritdoc />
-    public partial class alles : Migration
+    public partial class allesauctiones : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,6 +43,35 @@ namespace dopaminator_backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Auctions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MintableId = table.Column<int>(type: "integer", nullable: false),
+                    TokenId = table.Column<int>(type: "integer", nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Auctions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Auctions_Mintables_MintableId",
+                        column: x => x.MintableId,
+                        principalTable: "Mintables",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Auctions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Posts",
                 columns: table => new
                 {
@@ -64,6 +93,16 @@ namespace dopaminator_backend.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Auctions_MintableId",
+                table: "Auctions",
+                column: "MintableId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Auctions_UserId",
+                table: "Auctions",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Posts_UserId",
                 table: "Posts",
                 column: "UserId");
@@ -73,10 +112,13 @@ namespace dopaminator_backend.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Mintables");
+                name: "Auctions");
 
             migrationBuilder.DropTable(
                 name: "Posts");
+
+            migrationBuilder.DropTable(
+                name: "Mintables");
 
             migrationBuilder.DropTable(
                 name: "Users");
