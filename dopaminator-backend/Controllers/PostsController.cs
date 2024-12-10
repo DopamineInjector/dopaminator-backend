@@ -59,6 +59,7 @@ namespace Dopaminator.Controllers
                 ImageData = body.Content,
                 BlurredImageData = blurred,
                 Author = user,
+                UserId = user.Id,
                 Title = body.Title,
             };
             Console.WriteLine(created.Author.ToString());
