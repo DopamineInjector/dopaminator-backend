@@ -61,6 +61,7 @@ namespace Dopaminator.Controllers
                 Author = user,
                 UserId = user.Id,
                 Title = body.Title,
+                PurchasedBy = new()
             };
             Console.WriteLine(created.Author.ToString());
             await this._context.Posts.AddAsync(created);
@@ -110,7 +111,7 @@ namespace Dopaminator.Controllers
             User author = this._context.Users.First(p => p.Id.Equals(post.UserId));
             user.Balance -= post.Price;
             author.Balance += post.Price;
-            post.PurchasedBy.Add(user);
+            post.PurchasedBy.Add(user.Id);
             this._context.Users.Update(user);
             this._context.Users.Update(author);
             this._context.Posts.Update(post);
@@ -138,7 +139,7 @@ namespace Dopaminator.Controllers
 
         private bool IsBoughtByAuthUser(Post post) {
             var id = this.GetUserId();
-            return post.PurchasedBy.Find(p => p.Id.Equals(id)) != null;
+            return post.PurchasedBy.Any(p => p.Equals(id));
         }
 
         private Post? GetPostFromDb(Guid postId) {
