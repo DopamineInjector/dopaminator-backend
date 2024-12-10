@@ -107,7 +107,7 @@ namespace Dopaminator.Controllers
             if(user.Balance < post.Price) {
                 return StatusCode(400, new {message = "Cannot afford this post. Maybe stop buying pics on the internet and get an actual job lil bro"});
             }
-            User author = post.Author;
+            User author = this._context.Users.First(p => p.Id.Equals(post.UserId));
             user.Balance -= post.Price;
             author.Balance += post.Price;
             post.PurchasedBy.Add(user);
