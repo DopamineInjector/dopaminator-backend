@@ -11,7 +11,7 @@ namespace Dopaminator.Services {
         }
 
         private bool IsBoughtByUser(Post post, Guid id) {
-            return post.PurchasedBy.Find(p => p.Id.Equals(id)) != null;
+            return post.Author.Id.Equals(id) ||  post.PurchasedBy.Find(p => p.Id.Equals(id)) != null;
         }
 
         private Post? GetPostFromDb(Guid postId) {
